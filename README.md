@@ -1,3 +1,9 @@
+<div align="right">
+
+<a href="README.md"><img src="https://flagcdn.com/w40/gb.png" width="25"></a> | <a href="README-ID.md"><img src="https://flagcdn.com/w40/id.png" width="20"></a>
+
+</div>
+
 # Gamification - Programming Learning
 
 Hello! 👋 let's get to know my project this time: Programming Learning, a fun website for learning coding. I created this website so that friends can learn programming in a more fun and interactive way.

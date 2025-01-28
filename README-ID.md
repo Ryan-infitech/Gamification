@@ -1,5 +1,11 @@
+<div align="right">
+
+<a href="README.md"><img src="https://flagcdn.com/w40/gb.png" width="25"></a> | <a href="README-ID.md"><img src="https://flagcdn.com/w40/id.png" width="20"></a>
+
+</div>
 
 # Gamification - Programing Learning
+![App Screenshot](./media/SS%20Desk%201.png)
 
 Hallo! 👋 ayo kenalan dengan project saya kali ini: Programming Learning, sebuah website seru buat belajar coding. Website ini saya buat supaya teman-teman bisa belajar programming dengan cara yang lebih fun dan interaktif.
 Jadi gini, di website ini kamu bakal nemuin kuis-kuis seru dengan pertanyaan pilihan ganda yang diacak. Nggak cuma itu, kamu langsung bisa tau jawaban kamu bener atau salah, plus ada animasi lucu yang bikin belajar jadi nggak membosankan. Saya pakai teknologi kekinian seperti TypeScript, Tailwind CSS, Framer Motion, dan Lucide React buat bikin tampilannya jadi keren dan nyaman dipakai.
@@ -34,7 +40,7 @@ Kenapa harus coba? Karena website ini cocok buat siapa aja yang pengen belajar c
 ![App Screenshot](./media/SS%20Desk%201.png)
 ![App Screenshot](./media/SS%20Desk%202.png)
 ![App Screenshot](./media/SS%20Desk%203.png)
-<br>
+
 <div align="center">
 <img src="./media/Galaxy-S21-Ultra-localhost%20(1).png" alt="App Screenshot" style="width: 50%; height: 50%;"/> </div>
 
@@ -73,7 +79,7 @@ Start local server
 
 
 ## Tech Stack
-<br>
+
 <div align="center">
 
 ![Logo](./media/icons-typescript-48.png) ![Logo](./media/1174949_js_react%20js_logo_react_react%20native_icon.png) <img width="48" height="48" src="https://img.icons8.com/color/48/tailwindcss.png" alt="tailwindcss"/> ![Logo](./media/icons-json-48.png)
