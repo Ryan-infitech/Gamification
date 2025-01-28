@@ -1,34 +1,34 @@
+# Gamification - Programming Learning
 
-# Gamification - Programing Learning
+Hello! 👋 let's get to know my project this time: Programming Learning, a fun website for learning coding. I created this website so that friends can learn programming in a more fun and interactive way.
+So, on this website, you will find fun quizzes with randomized multiple-choice questions. Not only that, you can immediately know whether your answer is correct or wrong, plus there are cute animations that make learning not boring. I use modern technologies like TypeScript, Tailwind CSS, Framer Motion, and Lucide React to make the appearance cool and comfortable to use.
 
-Hallo! 👋 ayo kenalan dengan project saya kali ini: Programming Learning, sebuah website seru buat belajar coding. Website ini saya buat supaya teman-teman bisa belajar programming dengan cara yang lebih fun dan interaktif.
-Jadi gini, di website ini kamu bakal nemuin kuis-kuis seru dengan pertanyaan pilihan ganda yang diacak. Nggak cuma itu, kamu langsung bisa tau jawaban kamu bener atau salah, plus ada animasi lucu yang bikin belajar jadi nggak membosankan. Saya pakai teknologi kekinian seperti TypeScript, Tailwind CSS, Framer Motion, dan Lucide React buat bikin tampilannya jadi keren dan nyaman dipakai.
-Apa aja sih yang bisa kamu lakuin di sini?
+## What can you do here?
 
-- Pilih topik yang kamu suka dan mulai jawab pertanyaan satu-satu
-- Langsung tau skor kamu setelah jawab
-- Dapet trofi virtual kalo kamu berhasil
-- Bisa langsung di deploy kalo kamu mau 
+- Choose the topic you like and start answering questions one by one
+- Immediately know your score after answering
+- Get a virtual trophy if you succeed
+- Can be deployed directly if you want
 
-Yang bikin website ini special:
+## What makes this website special:
 
-- Soal-soalnya diacak, jadi tiap main bakal dapet urutan yang beda
-- Ada efek animasi yang bikin kamu tau langsung jawaban kamu bener atau salah
-- Bisa liat progress belajar kamu sejauh mana
-- Tampilannya kekinian dan bisa dipake di HP atau laptop, plus ada dark mode buat yang suka tema gelap
+- The questions are randomized, so each play will get a different order
+- There are animation effects that let you know immediately whether your answer is correct or wrong
+- You can see how far your learning progress is
+- The appearance is modern and can be used on mobile phones or laptops, plus there is a dark mode for those who like dark themes
 
-Teknologi yang dipake:
+## Technologies used:
 
 ![Logo](https://miro.medium.com/v2/resize:fit:828/format:webp/1*a-HMmQFQNC76zCZBZfFgJg.gif)
 
-- TypeScript - biar code-nya rapi dan aman
-- Tailwind CSS - buat design yang keren dan konsisten
-- Framer Motion - nambahin animasi smooth yang bikin mata happy
-- Lucide React - ikon-ikon modern yang bikin tampilan makin ciamik
+- TypeScript - to keep the code neat and safe
+- Tailwind CSS - for cool and consistent design
+- Framer Motion - adding smooth animations that make your eyes happy
+- Lucide React - modern icons that make the appearance even more stunning
 
-Kenapa harus coba? Karena website ini cocok buat siapa aja yang pengen belajar coding, dari yang baru mulai sampai yang udah jago. Interfacenya gampang dipake, designnya eye-catching, dan yang paling penting: belajarnya jadi lebih asik! 🚀
+Why should you try it? Because this website is suitable for anyone who wants to learn coding, from beginners to experts. The interface is easy to use, the design is eye-catching, and most importantly: learning becomes more fun! 🚀
 
-## Screenshots
+## Preview
 
 ![App Screenshot](./media/SS%20Desk%201.png)
 ![App Screenshot](./media/SS%20Desk%202.png)
@@ -79,9 +79,9 @@ Start local server
  ![Node, Express](https://user-images.githubusercontent.com/97989643/224550089-f2541ade-c5c6-4afa-8538-51a8dda4e23b.gif)
 
 
- ## Kontak
+ ## Contact
 
-Jika Anda memiliki pertanyaan atau saran, silakan buka issue baru di repository ini.
+If you have any questions or suggestions, please open a new issue in this repository.
 
 [![WhatsApp](https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/6285157517798)
 [![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/ryan.septiawan__/)
