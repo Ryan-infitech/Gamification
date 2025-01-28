@@ -39,9 +39,10 @@ Why should you try it? Because this website is suitable for anyone who wants to 
 ![App Screenshot](./media/SS%20Desk%201.png)
 ![App Screenshot](./media/SS%20Desk%202.png)
 ![App Screenshot](./media/SS%20Desk%203.png)
+<div align="center">
 
 <img src="./media/Galaxy-S21-Ultra-localhost%20(1).png" alt="App Screenshot" style="width: 50%; height: 50%;"/>
-
+</div>
 
 ## Run Locally
 
@@ -77,13 +78,13 @@ Start local server
 
 
 ## Tech Stack
+<div align="center">
+
 ![Logo](./media/icons-typescript-48.png) ![Logo](./media/1174949_js_react%20js_logo_react_react%20native_icon.png) <img width="48" height="48" src="https://img.icons8.com/color/48/tailwindcss.png" alt="tailwindcss"/> ![Logo](./media/icons-json-48.png)
-
-
-
 
  ![Node, Express](https://user-images.githubusercontent.com/97989643/224550089-f2541ade-c5c6-4afa-8538-51a8dda4e23b.gif)
 
+</div>
 
  ## Contact
 
