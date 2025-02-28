@@ -44,8 +44,13 @@ export default function Footer() {
                 </h3>
                 <ul className="space-y-2">
                   <li>
-                    <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                    <a href="/" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                       Home
+                    </a>
+                  </li>
+                  <li>
+                    <a href="AchievementsPage" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                      Pencapaian
                     </a>
                   </li>
                   <li>
