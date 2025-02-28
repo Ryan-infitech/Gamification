@@ -58,16 +58,16 @@ export default function Footer() {
                 <Github className="w-6 h-6" />
               </a>
               <a
+                href="https://www.linkedin.com/in/rian-septiawan-23b0a5351/"
+                className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+              >
+                <Linkedin className="w-6 h-6" />
+              </a>
+              <a
                 href="https://www.instagram.com/ryan.septiawan__/"
                 className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
               >
                 <Instagram className="w-6 h-6" />
-              </a>
-              <a
-                href="https://api.whatsapp.com/send?phone=6285157517798"
-                className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
-              >
-                <PhoneIcon className="w-6 h-6" />
               </a>
             </div>
           </div>
