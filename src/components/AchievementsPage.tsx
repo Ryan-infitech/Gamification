@@ -86,7 +86,7 @@ const AchievementsPage: React.FC<AchievementsProps> = ({ username, categories })
   }
 
   const navigateToLeaderboard = () => {
-    navigate('/leaderboard');
+    navigate('/leaderboardPage');
   };
 
   return (
