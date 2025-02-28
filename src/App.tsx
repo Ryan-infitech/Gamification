@@ -11,6 +11,7 @@ import Quiz from "./components/Quiz";
 import Landing from "./components/Landing";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
+import AchievementsPage from "./components/AchievementsPage";
 import LeaderboardPage from "./components/LeaderboardPage";
 import { questionService } from "./services/questionService";
 import { Sun, Moon } from "lucide-react";
@@ -195,7 +196,16 @@ function AppContent() {
                 }
               />
               <Route
-                path="/leaderboard"
+                path="/AchievementsPage"
+                element={
+                  <AchievementsPage
+                    categories={categories}
+                    isDarkMode={isDarkMode}
+                  />
+                }
+              />
+              <Route
+                path="/LeaderboardPage"
                 element={
                   <LeaderboardPage
                     categories={categories}
