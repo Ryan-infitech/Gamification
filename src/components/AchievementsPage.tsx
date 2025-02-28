@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Star, Target, Award, Crown, BookOpen } from 'lucide-react';
-import { QuizCategory } from '../data/questions';
+import { useNavigate } from 'react-router-dom';
+import { userService } from '../services/userService';
+
+// Interfaces
+interface QuizCategory {
+  id: string;
+  title: string;
+  description: string;
+}
 
 interface QuizResult {
+  id: string;
+  userId: string;
+  username: string;
   categoryId: string;
   score: number;
   totalQuestions: number;
+  completionTime: number;
   timestamp: Date;
 }
 
 interface AchievementsProps {
-  quizResults: QuizResult[];
+  username: string;
   categories: QuizCategory[];
 }
 
+// Helper functions
 const calculateProgress = (results: QuizResult[]) => {
   const totalAttempts = results.length;
   const totalScore = results.reduce((acc, result) => acc + result.score, 0);
@@ -23,7 +36,8 @@ const calculateProgress = (results: QuizResult[]) => {
   return {
     totalAttempts,
     averageScore: totalQuestions > 0 ? (totalScore / totalQuestions) * 100 : 0,
-    completedCategories: new Set(results.map(r => r.categoryId)).size
+    completedCategories: new Set(results.map(r => r.categoryId)).size,
+    totalTime: results.reduce((acc, result) => acc + result.completionTime, 0)
   };
 };
 
@@ -35,13 +49,44 @@ const getAchievementLevel = (score: number): { title: string; icon: React.Elemen
   return { title: 'Beginner', icon: BookOpen };
 };
 
-const AchievementsPage: React.FC<AchievementsProps> = ({ quizResults, categories }) => {
+const formatTime = (seconds: number): string => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
+const AchievementsPage: React.FC<AchievementsProps> = ({ username, categories }) => {
+  const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadUserResults = async () => {
+      try {
+        const results = await userService.getUserResults(username);
+        setQuizResults(results);
+      } catch (error) {
+        console.error('Error loading user results:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserResults();
+  }, [username]);
+
   const progress = calculateProgress(quizResults);
 
-  // Helper function to get category title
-  const getCategoryTitle = (categoryId: string): string => {
-    const category = categories.find(c => c.id === categoryId);
-    return category ? category.title : 'Unknown Category';
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white"></div>
+      </div>
+    );
+  }
+
+  const navigateToLeaderboard = () => {
+    navigate('/leaderboard');
   };
 
   return (
@@ -53,7 +98,7 @@ const AchievementsPage: React.FC<AchievementsProps> = ({ quizResults, categories
         className="text-center mb-12"
       >
         <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Pencapaian Anda
+          Pencapaian {username}
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300">
           Terus tingkatkan pengetahuan dan kemampuan Anda!
@@ -77,23 +122,26 @@ const AchievementsPage: React.FC<AchievementsProps> = ({ quizResults, categories
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <div 
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          onClick={navigateToLeaderboard}
+        >
           <Target className="w-12 h-12 text-green-500 mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Rata-rata Skor
+            Leaderboard
           </h3>
-          <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-            {progress.averageScore.toFixed(1)}%
+          <p className="text-base text-gray-600 dark:text-gray-300">
+            Lihat peringkat semua pemain
           </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <BookOpen className="w-12 h-12 text-blue-500 mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Kategori Selesai
+            Total Waktu
           </h3>
           <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-            {progress.completedCategories}/{categories.length}
+            {formatTime(progress.totalTime)}
           </p>
         </div>
       </motion.div>
@@ -112,11 +160,11 @@ const AchievementsPage: React.FC<AchievementsProps> = ({ quizResults, categories
           {quizResults.slice(-5).reverse().map((result, index) => {
             const achievement = getAchievementLevel((result.score / result.totalQuestions) * 100);
             const AchievementIcon = achievement.icon;
-            const categoryTitle = getCategoryTitle(result.categoryId);
+            const category = categories.find(c => c.id === result.categoryId);
             
             return (
               <motion.div
-                key={index}
+                key={result.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
@@ -127,10 +175,10 @@ const AchievementsPage: React.FC<AchievementsProps> = ({ quizResults, categories
                     <AchievementIcon className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        {categoryTitle}
+                        {category?.title || 'Unknown Category'}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        {new Date(result.timestamp).toLocaleDateString()}
+                        {new Date(result.timestamp).toLocaleDateString()} - {formatTime(result.completionTime)}
                       </p>
                     </div>
                   </div>
@@ -164,6 +212,7 @@ const AchievementsPage: React.FC<AchievementsProps> = ({ quizResults, categories
             const bestScore = categoryResults.length > 0
               ? Math.max(...categoryResults.map(r => (r.score / r.totalQuestions) * 100))
               : 0;
+            const totalTime = categoryResults.reduce((acc, r) => acc + r.completionTime, 0);
             
             return (
               <motion.div
@@ -186,7 +235,7 @@ const AchievementsPage: React.FC<AchievementsProps> = ({ quizResults, categories
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-300">
-                    {categoryResults.length} Percobaan
+                    {categoryResults.length} Percobaan - {formatTime(totalTime)}
                   </span>
                   <span className="font-semibold text-indigo-600 dark:text-indigo-400">
                     {bestScore.toFixed(1)}%

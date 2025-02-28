@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, XCircle, CheckCircle, RefreshCw, ArrowLeft } from 'lucide-react';
+import { QuestionService } from '../services/questionService';
+import { UserService } from '../services/userService';
 
 // Types
 interface Question {
+  id: string;
+  category: string;
   question: string;
   options: string[];
   correctAnswer: number;
@@ -12,7 +16,6 @@ interface Question {
 interface QuizCategory {
   id: string;
   title: string;
-  questions: Question[];
 }
 
 interface QuizProps {
@@ -22,41 +25,6 @@ interface QuizProps {
   onComplete: (score: number) => void;
 }
 
-interface QuizResult {
-  id: string;
-  categoryId: string;
-  categoryTitle: string;
-  score: number;
-  totalQuestions: number;
-  timestamp: string;
-  answers: {
-    questionIndex: number;
-    selectedAnswer: number;
-    isCorrect: boolean;
-  }[];
-}
-
-// Storage utilities
-const saveQuizResult = (result: QuizResult) => {
-  try {
-    const existingResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
-    const newResults = [...existingResults, result];
-    localStorage.setItem('quizResults', JSON.stringify(newResults));
-    return true;
-  } catch (error) {
-    console.error('Error saving quiz result:', error);
-    return false;
-  }
-};
-
-const getQuizResults = (): QuizResult[] => {
-  try {
-    return JSON.parse(localStorage.getItem('quizResults') || '[]');
-  } catch {
-    return [];
-  }
-};
-
 export default function Quiz({ category, onBack, isDarkMode, onComplete }: QuizProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -64,24 +32,69 @@ export default function Quiz({ category, onBack, isDarkMode, onComplete }: QuizP
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
+  const [showLogin, setShowLogin] = useState(true);
+  const [username, setUsername] = useState('');
+  const [startTime, setStartTime] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Array<{
     questionIndex: number;
     selectedAnswer: number;
     isCorrect: boolean;
   }>>([]);
 
+  const questionService = new QuestionService();
+  const userService = new UserService();
+
   useEffect(() => {
-    setShuffledQuestions([...category.questions].sort(() => Math.random() - 0.5));
+    if (!category?.id) {
+      console.error('Invalid category data:', category);
+      onBack(); // Kembali ke halaman sebelumnya jika kategori invalid
+      return;
+    }
+    loadQuestions();
   }, [category]);
 
-  const handleAnswer = (optionIndex: number) => {
+// Di Quiz.tsx
+const loadQuestions = async () => {
+  try {
+    console.log('Loading questions for category:', category);
+    const questions = await questionService.getQuestionsByCategory(category.id);
+    console.log('Questions loaded:', questions?.length || 0);
+    
+    if (!questions?.length) {
+      console.warn('No questions returned for category:', category);
+      return;
+    }
+    
+    setShuffledQuestions([...questions].sort(() => Math.random() - 0.5));
+  } catch (error) {
+    console.error('Error loading questions:', error);
+  }
+};
+
+  const handleUsernameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const isAvailable = await userService.checkUsername(username);
+      if (!isAvailable) {
+        alert('Username sudah digunakan. Silakan pilih username lain.');
+        return;
+      }
+      await userService.createUser(username);
+      setShowLogin(false);
+      setStartTime(Date.now());
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error memeriksa username. Silakan coba lagi.');
+    }
+  };
+
+  const handleAnswer = async (optionIndex: number) => {
     if (selectedAnswer !== null) return;
 
     setSelectedAnswer(optionIndex);
     const correct = optionIndex === shuffledQuestions[currentQuestionIndex].correctAnswer;
     setIsCorrect(correct);
 
-    // Record the answer
     setAnswers(prev => [...prev, {
       questionIndex: currentQuestionIndex,
       selectedAnswer: optionIndex,
@@ -103,37 +116,110 @@ export default function Quiz({ category, onBack, isDarkMode, onComplete }: QuizP
     }, 1000);
   };
 
-  const handleQuizComplete = () => {
-    const result: QuizResult = {
-      id: crypto.randomUUID(),
-      categoryId: category.id,
-      categoryTitle: category.title,  // Added missing categoryTitle
-      score,
-      totalQuestions: shuffledQuestions.length,
-      timestamp: new Date().toISOString(),
-      answers
-    };
-    
-    const saved = saveQuizResult(result);
-    if (!saved) {
-      console.error('Failed to save quiz results');
+  const handleQuizComplete = async () => {
+    const endTime = Date.now();
+    const timeSpent = Math.floor((endTime - (startTime || 0)) / 1000);
+    const finalScore = Math.round((score / shuffledQuestions.length) * 100);
+
+    try {
+      await userService.saveQuizResult(
+        username,
+        category.id,
+        finalScore,
+        timeSpent,
+        answers
+      );
+      onComplete(score);
+      setShowResult(true);
+    } catch (error) {
+      console.error('Error saving results:', error);
+      alert('Error menyimpan hasil quiz. Silakan coba lagi.');
     }
-    
-    onComplete(score);  // Added missing onComplete call
-    setShowResult(true);
   };
 
-  const resetQuiz = () => {
-    setShuffledQuestions([...category.questions].sort(() => Math.random() - 0.5));
-    setCurrentQuestionIndex(0);
-    setScore(0);
-    setShowResult(false);
-    setSelectedAnswer(null);
-    setIsCorrect(null);
-    setAnswers([]);
+  const resetQuiz = async () => {
+    try {
+      const questions = await questionService.getQuestionsByCategory(category.id);
+      setShuffledQuestions([...questions].sort(() => Math.random() - 0.5));
+      setCurrentQuestionIndex(0);
+      setScore(0);
+      setShowResult(false);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+      setAnswers([]);
+      setStartTime(Date.now());
+    } catch (error) {
+      console.error('Error resetting quiz:', error);
+    }
   };
 
-  if (!shuffledQuestions.length) return null;
+  if (!shuffledQuestions.length) {
+    return (
+      <div className="text-center">
+        <p>Belum ada pertanyaan untuk kategori ini. Silakan coba lagi nanti.</p>
+      </div>
+    );
+  }
+
+  if (showLogin) {
+    return (
+      <div className="w-full max-w-2xl mx-auto">
+        <button
+          onClick={onBack}
+          className={`mb-4 flex items-center gap-2 ${
+            isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-indigo-600 hover:text-indigo-700'
+          } transition-colors`}
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Kembali ke Kategori
+        </button>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`rounded-xl shadow-lg p-8 ${
+            isDarkMode ? 'bg-gray-800' : 'bg-white'
+          }`}
+        >
+          <h2 className={`text-2xl font-bold mb-6 ${
+            isDarkMode ? 'text-gray-100' : 'text-gray-800'
+          }`}>
+            Masukkan Username
+          </h2>
+          <form onSubmit={handleUsernameSubmit}>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className={`w-full p-4 rounded-lg mb-4 ${
+                isDarkMode 
+                  ? 'bg-gray-700 text-gray-100 border-gray-600' 
+                  : 'bg-gray-50 text-gray-800 border-gray-200'
+              } border-2`}
+              placeholder="Masukkan username"
+              required
+            />
+            <button
+              type="submit"
+              className={`w-full py-4 rounded-lg transition-colors ${
+                isDarkMode 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+              }`}
+            >
+              Mulai Quiz
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
+  
+console.log('Checking username:', username);
+console.log('Environment variables:', {
+region: process.env.VITE_AWS_REGION,
+table: process.env.VITE_USERS_TABLE
+});
 
   const currentQuestion = shuffledQuestions[currentQuestionIndex];
 
@@ -161,11 +247,18 @@ export default function Quiz({ category, onBack, isDarkMode, onComplete }: QuizP
             }`}
           >
             <div className="flex justify-between items-center mb-8">
+              <div>
               <h2 className={`text-2xl font-bold ${
                 isDarkMode ? 'text-gray-100' : 'text-gray-800'
               }`}>
-                {category.title} - Pertanyaan {currentQuestionIndex + 1}/{shuffledQuestions.length}
+                {category?.title || 'Quiz'} - Pertanyaan {currentQuestionIndex + 1}/{shuffledQuestions.length}
               </h2>
+                <p className={`text-sm ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  Username: {username}
+                </p>
+              </div>
               <span className={`text-lg font-semibold ${
                 isDarkMode ? 'text-blue-400' : 'text-indigo-600'
               }`}>
