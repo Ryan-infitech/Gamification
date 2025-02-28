@@ -1,17 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useInView } from 'framer-motion';
-import { 
-  Code2, 
-  Component, 
-  FileType, 
-  Brain, 
-  ArrowRight, 
-  BookOpen, 
-  Lightbulb 
-} from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion, useScroll, useInView } from "framer-motion";
+import {
+  Code2,
+  Component,
+  FileType,
+  Brain,
+  ArrowRight,
+  BookOpen,
+  Lightbulb,
+} from "lucide-react";
 
 // Types
-type IconKey = 'Code2' | 'Component' | 'FileType' | 'Brain' | 'BookOpen' | 'Lightbulb';
+type IconKey =
+  | "Code2"
+  | "Component"
+  | "FileType"
+  | "Brain"
+  | "BookOpen"
+  | "Lightbulb";
 
 interface QuizCategory {
   id: string;
@@ -27,7 +33,7 @@ interface LandingProps {
 }
 
 interface MediaPath {
-  type: 'image' | 'gif' | 'icon';
+  type: "image" | "gif" | "icon";
   source: string;
   title: string;
   description: string;
@@ -40,64 +46,79 @@ const icons: Record<IconKey, React.ElementType> = {
   FileType,
   Brain,
   BookOpen,
-  Lightbulb
+  Lightbulb,
 };
 
 const learningPaths: MediaPath[] = [
   {
-    type: 'image',
-    source: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzB3NnBmYWxiMmYwdjZ4ODQ2NGlpNGw5amQzeDM5b25zc3h5eWE2eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jM4NGpvx6jZmW93hcZ/giphy.gif',
+    type: "image",
+    source:
+      "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzB3NnBmYWxiMmYwdjZ4ODQ2NGlpNGw5amQzeDM5b25zc3h5eWE2eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jM4NGpvx6jZmW93hcZ/giphy.gif",
     title: "Dasar Pemrograman",
-    description: "Pelajari konsep dasar pemrograman yang akan menjadi fondasi karir Anda sebagai developer."
+    description:
+      "Pelajari konsep dasar pemrograman yang akan menjadi fondasi karir Anda sebagai developer.",
   },
   {
-    type: 'image',
-    source: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ21vcHU4aDJxaDk5aWE4ZzBva3Y0cHh5bmcwMGw4cW52emIwOWpiYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/73kKE9yqx9gSZDaB2e/giphy.gif',
+    type: "image",
+    source:
+      "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ21vcHU4aDJxaDk5aWE4ZzBva3Y0cHh5bmcwMGw4cW52emIwOWpiYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/73kKE9yqx9gSZDaB2e/giphy.gif",
     title: "Frontend Development",
-    description: "Kuasai teknologi modern untuk membangun antarmuka web yang interaktif dan responsif."
+    description:
+      "Kuasai teknologi modern untuk membangun antarmuka web yang interaktif dan responsif.",
   },
   {
-    type: 'image',
-    source: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHVtNWw2eHNtdGk2dXh5c29jOTA1ejF1bXE4N25hMGo0YnQ2bHJoayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bi6RQ5x3tqoSI/giphy.gif',
+    type: "image",
+    source:
+      "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHVtNWw2eHNtdGk2dXh5c29jOTA1ejF1bXE4N25hMGo0YnQ2bHJoayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bi6RQ5x3tqoSI/giphy.gif",
     title: "Backend Development",
-    description: "Pelajari cara membangun server, API, dan mengelola database untuk aplikasi yang scalable."
-  }
+    description:
+      "Pelajari cara membangun server, API, dan mengelola database untuk aplikasi yang scalable.",
+  },
 ];
 
 const funFacts = [
   {
     title: "Tahukah Kamu?",
-    content: "JavaScript awalnya dibuat hanya dalam 10 hari oleh Brendan Eich pada tahun 1995!"
+    content:
+      "JavaScript awalnya dibuat hanya dalam 10 hari oleh Brendan Eich pada tahun 1995!",
   },
   {
     title: "Fakta Menarik",
-    content: "Ada lebih dari 700 bahasa pemrograman yang ada di dunia!"
+    content: "Ada lebih dari 700 bahasa pemrograman yang ada di dunia!",
   },
   {
     title: "Tips Developer",
-    content: "90% waktu programmer dihabiskan untuk membaca kode, bukan menulis kode."
-  }
+    content:
+      "90% waktu programmer dihabiskan untuk membaca kode, bukan menulis kode.",
+  },
 ];
 
 // Scroll Animation Hook with Reset Capability
 const useScrollAnimation = (threshold = 0.2) => {
   const ref = useRef(null);
   const [hasTriggered, setHasTriggered] = useState(false);
-  
+  const [shouldReset, setShouldReset] = useState(false);
+
   const inView = useInView(ref, {
     amount: threshold,
-    once: false // Changed to false to allow re-triggering
+    once: false,
   });
-  
-  // Track when element has been in view
+
   useEffect(() => {
-    if (inView) {
+    if (inView && !shouldReset) {
       setHasTriggered(true);
+    } else if (!inView && shouldReset) {
+      setHasTriggered(false);
+      setShouldReset(false);
     }
-  }, [inView]);
-  
-  // Return the ref, current inView status, and a function to reset the animation
-  return [ref, inView || hasTriggered, () => setHasTriggered(false)] as const;
+  }, [inView, shouldReset]);
+
+  const reset = useCallback(() => {
+    setHasTriggered(false);
+    setShouldReset(true);
+  }, []);
+
+  return [ref, inView || hasTriggered, reset] as const;
 };
 
 // Components
@@ -105,10 +126,10 @@ const MediaContainer: React.FC<{ path: MediaPath }> = ({ path }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  if (path.type === 'icon') {
+  if (path.type === "icon") {
     const Icon = icons[path.source as IconKey];
     return (
-      <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center mb-4">
+      <div className="w-12 h-12 bg-indigo-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mb-4">
         <Icon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
       </div>
     );
@@ -121,17 +142,19 @@ const MediaContainer: React.FC<{ path: MediaPath }> = ({ path }) => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 dark:border-indigo-400" />
         </div>
       )}
-      
+
       {error ? (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-          <span className="text-gray-500 dark:text-gray-400">Gagal memuat gambar</span>
+          <span className="text-gray-500 dark:text-gray-400">
+            Gagal memuat gambar
+          </span>
         </div>
       ) : (
-        <img 
+        <img
           src={path.source}
           alt={path.title}
           className={`w-full h-full object-cover transition-opacity duration-300 ${
-            isLoading ? 'opacity-0' : 'opacity-100'
+            isLoading ? "opacity-0" : "opacity-100"
           }`}
           onLoad={() => setIsLoading(false)}
           onError={() => {
@@ -146,7 +169,7 @@ const MediaContainer: React.FC<{ path: MediaPath }> = ({ path }) => {
 
 const ScrollProgress = () => {
   const { scrollYProgress } = useScroll();
-  
+
   return (
     <motion.div
       className="fixed top-0 left-0 right-0 h-1 bg-indigo-600 dark:bg-indigo-500 z-50 origin-left"
@@ -155,16 +178,15 @@ const ScrollProgress = () => {
   );
 };
 
-const HeroSection: React.FC<{ resetAnimations: () => void }> = ({ resetAnimations }) => {
-  const [ref, inView, resetAnim] = useScrollAnimation(0.1);
-  
-  // When this section comes into view, reset all animations
+const HeroSection: React.FC<{ addResetRef: (reset: () => void) => void }> = ({
+  addResetRef,
+}) => {
+  const [ref, inView, reset] = useScrollAnimation(0.1);
+
   useEffect(() => {
-    if (inView) {
-      resetAnimations();
-    }
-  }, [inView, resetAnimations]);
-  
+    addResetRef(reset);
+  }, [addResetRef, reset]);
+
   return (
     <motion.div
       ref={ref}
@@ -177,33 +199,42 @@ const HeroSection: React.FC<{ resetAnimations: () => void }> = ({ resetAnimation
         Selamat Datang di Developer Quiz
       </h1>
       <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-        Uji dan tingkatkan pengetahuan pemrograman Anda melalui quiz interaktif kami!
+        Uji dan tingkatkan pengetahuan pemrograman Anda melalui quiz interaktif
+        kami!
       </p>
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ delay: 0.3, duration: 0.5 }}
         className="mt-8"
       >
-        <motion.div 
+        <motion.div
           className="mx-auto w-8 h-16 border-2 border-indigo-500 rounded-full flex items-start justify-center p-2"
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
           <div className="w-1 h-3 bg-indigo-500 rounded-full" />
         </motion.div>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Scroll untuk menjelajahi</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          Scroll untuk menjelajahi
+        </p>
       </motion.div>
     </motion.div>
   );
 };
 
-const LearningPathsSection: React.FC = () => {
+const LearningPathsSection: React.FC<{
+  addResetRef: (reset: () => void) => void;
+}> = ({ addResetRef }) => {
   const [sectionRef, sectionInView, resetSection] = useScrollAnimation(0.1);
-  
+
+  useEffect(() => {
+    addResetRef(resetSection);
+  }, [addResetRef, resetSection]);
+
   return (
-    <motion.section 
+    <motion.section
       ref={sectionRef}
       initial={{ opacity: 0 }}
       animate={sectionInView ? { opacity: 1 } : { opacity: 0 }}
@@ -216,22 +247,30 @@ const LearningPathsSection: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {learningPaths.map((path, index) => {
           const [pathRef, pathInView, resetPath] = useScrollAnimation(0.2);
-          
+
+          useEffect(() => {
+            addResetRef(resetPath);
+          }, [addResetRef, resetPath]);
+
           return (
             <motion.div
               key={index}
               ref={pathRef}
               initial={{ opacity: 0, y: 50 }}
-              animate={pathInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+              animate={
+                pathInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }
+              }
               transition={{ delay: index * 0.2, duration: 0.5 }}
-              className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+              className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
             >
               <MediaContainer path={path} />
               <div className="space-y-2">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   {path.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">{path.description}</p>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {path.description}
+                </p>
               </div>
             </motion.div>
           );
@@ -241,9 +280,15 @@ const LearningPathsSection: React.FC = () => {
   );
 };
 
-const FunFactsSection: React.FC = () => {
+const FunFactsSection: React.FC<{
+  addResetRef: (reset: () => void) => void;
+}> = ({ addResetRef }) => {
   const [sectionRef, sectionInView, resetSection] = useScrollAnimation(0.2);
-  
+
+  useEffect(() => {
+    addResetRef(resetSection);
+  }, [addResetRef, resetSection]);
+
   return (
     <motion.section
       ref={sectionRef}
@@ -258,18 +303,23 @@ const FunFactsSection: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {funFacts.map((fact, index) => {
           const [factRef, factInView, resetFact] = useScrollAnimation(0.2);
-          
+
+          useEffect(() => {
+            addResetRef(resetFact);
+          }, [addResetRef, resetFact]);
+
           return (
             <motion.div
               key={index}
               ref={factRef}
               initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={factInView 
-                ? { opacity: 1, scale: 1, y: 0 } 
-                : { opacity: 0, scale: 0.9, y: 30 }
+              animate={
+                factInView
+                  ? { opacity: 1, scale: 1, y: 0 }
+                  : { opacity: 0, scale: 0.9, y: 30 }
               }
               transition={{ delay: index * 0.2, duration: 0.5 }}
-              className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-800 dark:to-slate-700 p-6 rounded-xl shadow-md"
+              className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md"
             >
               <Lightbulb className="w-8 h-8 text-indigo-600 dark:text-indigo-400 mb-3" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -287,9 +337,14 @@ const FunFactsSection: React.FC = () => {
 const QuizCategoriesSection: React.FC<{
   categories: QuizCategory[];
   onSelectCategory: (category: QuizCategory) => void;
-}> = ({ categories, onSelectCategory }) => {
+  addResetRef: (reset: () => void) => void;
+}> = ({ categories, onSelectCategory, addResetRef }) => {
   const [sectionRef, sectionInView, resetSection] = useScrollAnimation(0.1);
-  
+
+  useEffect(() => {
+    addResetRef(resetSection);
+  }, [addResetRef, resetSection]);
+
   return (
     <motion.section
       ref={sectionRef}
@@ -309,33 +364,41 @@ const QuizCategoriesSection: React.FC<{
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {categories.map((category, index) => {
-          const [categoryRef, categoryInView, resetCategory] = useScrollAnimation(0.1);
+          const [categoryRef, categoryInView, resetCategory] =
+            useScrollAnimation(0.1);
           const Icon = icons[category.icon];
-          
+
+          useEffect(() => {
+            addResetRef(resetCategory);
+          }, [addResetRef, resetCategory]);
+
           return (
             <motion.div
               key={category.id}
               ref={categoryRef}
               initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30, y: 20 }}
-              animate={categoryInView 
-                ? { opacity: 1, x: 0, y: 0 } 
-                : { opacity: 0, x: index % 2 === 0 ? -30 : 30, y: 20 }
+              animate={
+                categoryInView
+                  ? { opacity: 1, x: 0, y: 0 }
+                  : { opacity: 0, x: index % 2 === 0 ? -30 : 30, y: 20 }
               }
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
               <button
                 onClick={() => onSelectCategory(category)}
-                className="w-full h-full bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 text-left hover:shadow-xl transition-all hover:-translate-y-1 group"
+                className="w-full h-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 text-left hover:shadow-xl transition-all hover:-translate-y-1 group"
               >
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <div className="p-3 bg-indigo-100 dark:bg-gray-800 rounded-lg text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                     {Icon && <Icon className="w-6 h-6" />}
                   </div>
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {category.title}
                   </h2>
                 </div>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">{category.description}</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  {category.description}
+                </p>
                 <div className="flex items-center text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">
                   Mulai Quiz <ArrowRight className="w-4 h-4 ml-2" />
                 </div>
@@ -351,49 +414,50 @@ const QuizCategoriesSection: React.FC<{
 // Main Component
 const Landing: React.FC<LandingProps> = ({ categories, onSelectCategory }) => {
   const [scrolled, setScrolled] = useState(false);
-  const [resetAllAnimations, setResetAllAnimations] = useState(false);
-  
-  // Function to reset all animations
-  const resetAnimations = () => {
-    setResetAllAnimations(prev => !prev); // Toggle to trigger effects
+  const resetRefs = useRef<(() => void)[]>([]);
+
+  // Function untuk menambahkan reset function
+  const addResetRef = (reset: () => void) => {
+    resetRefs.current.push(reset);
   };
-  
+
+  // Function untuk reset semua animasi
+  const resetAllAnimations = () => {
+    resetRefs.current.forEach((reset) => reset());
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      
-      // If user scrolls back to top, we want to reset animations
-      if (window.scrollY < 10) {
-        resetAnimations();
+
+      // Reset animations ketika user scroll ke atas
+      if (window.scrollY === 0) {
+        resetAllAnimations();
       }
     };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
-  // Scroll to top handler with animation reset
+
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // After the scroll animation completes, reset all animations
-    setTimeout(() => {
-      resetAnimations();
-    }, 500);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(resetAllAnimations, 500);
   };
 
   return (
     <div className="max-w-6xl mx-auto px-4">
       <ScrollProgress />
-      
-      <HeroSection resetAnimations={resetAnimations} />
-      <LearningPathsSection />
-      <FunFactsSection />
-      <QuizCategoriesSection 
-        categories={categories} 
-        onSelectCategory={onSelectCategory} 
+
+      <HeroSection addResetRef={addResetRef} />
+      <LearningPathsSection addResetRef={addResetRef} />
+      <FunFactsSection addResetRef={addResetRef} />
+      <QuizCategoriesSection
+        categories={categories}
+        onSelectCategory={onSelectCategory}
+        addResetRef={addResetRef}
       />
-      
+
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -401,10 +465,11 @@ const Landing: React.FC<LandingProps> = ({ categories, onSelectCategory }) => {
         className="text-center pb-16"
       >
         <p className="text-gray-600 dark:text-gray-300">
-          Quiz baru ditambahkan secara berkala. Pantau terus untuk tantangan baru!
+          Quiz baru ditambahkan secara berkala. Pantau terus untuk tantangan
+          baru!
         </p>
       </motion.div>
-      
+
       {scrolled && (
         <motion.button
           initial={{ opacity: 0, scale: 0.8 }}
@@ -413,15 +478,15 @@ const Landing: React.FC<LandingProps> = ({ categories, onSelectCategory }) => {
           className="fixed bottom-8 right-8 p-3 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 focus:outline-none z-50"
           onClick={scrollToTop}
         >
-          <motion.svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
+          <motion.svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
             strokeLinejoin="round"
             animate={{ y: [0, -4, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
