@@ -15,6 +15,7 @@ const menuItems = [
   { icon: Code2, text: "Latihan Koding", path: "/latihan" },
   { icon: Users, text: "Komunitas", path: "/komunitas" },
   { icon: Mail, text: "Hubungi Kami", path: "/contact" },
+  { icon: Mail, text: "try", path: "/try" },
 ];
 
 export default function Sidebar({
