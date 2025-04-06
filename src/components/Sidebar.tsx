@@ -11,7 +11,7 @@ interface SidebarProps {
 
 const menuItems = [
   { icon: BookOpen, text: "Home", path: "/" },
-  { icon: Trophy, text: "Pencapaian", path: "/AchievementsPage" },
+  { icon: Trophy, text: "Pencapaian", path: "/achievements" },
   { icon: Code2, text: "Latihan Koding", path: "/latihan" },
   { icon: Users, text: "Komunitas", path: "/komunitas" },
   { icon: Mail, text: "Hubungi Kami", path: "/contact" },
